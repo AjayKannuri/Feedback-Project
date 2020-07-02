@@ -1,15 +1,99 @@
-Folder Structure:
-1) we have public folder which internally contains controllers and html_pages folders.
-2) controller page contains controller.js which is controller for all the webpages.
-3) html_pages contains admins and employee folder.
-4) admins folder contains all the admin related web pages.
-5) employee folder contains all the employee related web pages
-6) we have server.js on the root folder which contains all the api calls.
 
-Installing :
-1) Install mongo db from the mongodb website
-2) Install the dependencies like express,cors,mongojs using command "npm install".
-3) In the mongo db create contact list database which contains users(which contains users information),admins(which contains admins   info),emailFrom(which keeps the trackof received feedbacks from the different users) and emailTo(keeps the track of sent feedbacks to        different users as innser No-SQL dataforms 
-Execution :
-4) Run the mongo db server.
-5) Run the server.js file.
+
+
+
+
+
+DataSchemaModel dataSchemaModel = approvalMatMeta.getDataSchema();
+Set<PropertyModel> propertyModel = dataSchemaModel.getPropertyData();
+List<RolesModel> rolesModel = dataSchemaModel.getRolesData();
+List<StagesModel> stagesModel = dataSchemaModel.getStagesData();
+Property property=new Property();
+
+
+ApprovalMatrixmeta approvalMatrixmeta = new ApprovalMatrixmeta();
+
+// new entities...........
+
+Set<Property> propertySet = new HashSet<Property>();
+List<Roles> rolesList = new ArrayList<Roles>();
+List<Stages> stagesList = new ArrayList<Stages>();
+
+DataSchema dataSchema = new DataSchema();
+
+// ...................
+
+
+Iterator<PropertyModel> i = propertyModel.iterator(); 
+while (i.hasNext()) 
+{
+		PropertyModel propertyModel = i.next();
+		Property property = new Property();
+		property.setName(propertyModel.getName());
+		property.setType(propertyMode.getType());
+		property = propertyRepository.save(property);
+		propertySet.add(property);
+}
+
+for(RolesModel rolesModel : rolesModel) {
+
+	Roles roles = new Roles();
+	roles.setRoleName(rolesModel.getRoleName());
+	roles = rolesRepository.save(roles);
+	rolesList.add(roles);
+	
+}
+
+for(StagesModel stage : stagesModel) {
+	Stages stages = new Stages();
+	stages.setStageName(stage.getStageName());
+	stages = stagesRepository.save(stages);
+	stagesList.add(stages);
+}
+
+dataSchema.setPropertyData(propertySet);
+dataSchema.setRolesData(rolesList);
+dataSchema.setStagesData(stagesList);
+
+dataSchema = dataSchemaRepository.save(dataSchema);
+
+approvalMatrixmeta.setApplication(approvalMatMeta.getApplication());
+approvalMatrixmeta.setCompany(approvalMatMeta.getCompany());
+approvalMatrixmeta.setEntity(approvalMatMeta.getEntity());
+approvalMatrixmeta.setDataSchema(dataSchema);
+approvalMatrixmeta = approvalMatrixmetaRepository.save(approvalMatrixmeta);
+
+
+// resaving the primary keys....
+
+dataSchema.setApprovalMatrixMeta(approvalMatrixmeta);
+dataSchema = dataSchemaRepository.save(dataSchema);
+
+
+Iterator<Property> i = dataSchema.getPropertyData().iterator(); 
+while (i.hasNext()) 
+{
+		Property property = i.next();
+		property.setDataSchema(dataSchema);
+		propertyRepository.save(property);
+}
+
+for(Roles roles : dataSchema.getRolesData()) {
+
+	roles.setDataSchema(dataSchema);
+	roles = rolesRepository.save(roles);
+	
+}
+
+for(Stages stage : dataSchema.getStagesData()) {
+	stage.setDataSchema(dataSchema);
+	stages = stagesRepository.save(stage);
+}
+
+// resaved the primary keys..................
+
+
+
+
+
+
